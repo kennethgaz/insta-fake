@@ -1,30 +1,43 @@
+import { Post, getPosts } from '../apis/posts.api';
 import { action, observable } from 'mobx';
 
-import axios from 'axios';
-
-type Post = {
-    id: number;
-    authorId: number;
-    image: string;
-    description: string;
-    author: {
-        id: number;
-        name: string;
-        avatar: string;
-    }
-}
-
 export default class HomeStore {
-    @observable posts: Post[] = [];
+  @observable photoReady: boolean = false;
+  @observable posts: Post[] = [];
+  @observable loading: boolean = false;
 
-    @action getPosts = async () => {
-        try {
-            const { data: posts } = await axios.get<[Post]>('http://localhost:3000/feed?_expand=author')
-            this.posts = posts;
-        } catch (error) {
-            this.posts = [];
-        }
+  @action getPosts = async () => {
+    this.loading = true
+    try {
+      const posts = await getPosts();
+      this.posts = posts;
+    } catch (error) {
+      this.posts = [];
+      throw error;
+    } finally {
+      this.loading = false
     }
+  }
+
+  @action addPost = (uriPhoto) => {
+    const post: Post = {
+      author: {
+        avatar: 'https://media-manager.noticiasaominuto.com/1920/1569828741/naom_5d91af55df2fe.jpg',
+        id: 2,
+        name: 'bojack'
+      },
+      authorId: 2,
+      description: 'minha foto',
+      id: this.posts.length + 1,
+      image: uriPhoto
+    };
+
+    this.posts.unshift(post);
+  }
+
+  @action toogleStatus = (status: boolean) => {
+    this.photoReady = status;
+  }
 }
 
 const homeStore = new HomeStore();

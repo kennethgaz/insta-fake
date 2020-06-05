@@ -23,6 +23,17 @@ adb devices
 chmod +x android/gradlew
 ```
 
+# Iniciar a API fake
+```
+npm install -g json-server
+json-server --watch server.json
+```
+
+# Fazer a aplicação enxergar a API
+```
+adb reverse tcp:3000 tcp:3000
+```
+
 # Iniciar a aplicação
 ```
 yarn start
